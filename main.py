@@ -1,5 +1,9 @@
-from machine import Pin
+import commands
 
-led = Pin("LED", Pin.OUT)
 
-led.toggle()
+def main():
+    commands.command()
+
+
+if __name__ == "__main__":
+    main()
