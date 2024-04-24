@@ -1,10 +1,15 @@
-import threading
+import _thread
 import socket
 import sys
 import time
+from machine import Pin
+from time import sleep
 
 
 def command():
+    n = Pin(16, mode=Pin.IN, pull=Pin.PULL_DOWN)
+    d = Pin(17, mode=Pin.IN, pull=Pin.PULL_DOWN)
+
     host = ""
     port = 9000
     locaddr = (host, port)
@@ -35,13 +40,27 @@ def command():
     print("end -- quit demo.\r\n")
 
     # recvThread create
-    recvThread = threading.Thread(target=recv)
-    recvThread.start()
+    recvThread = _thread.start_new_thread(recv, ())  # Create the thread object
+    recvThread.start()  # Start the thread
 
     while True:
 
         try:
-            msg = input("")
+            while True:
+                if n.value() == 1:
+                    n.on()
+                    print("Takeoff...")
+                    sleep(0.2)
+                else:
+                    n.off()
+
+                if d.value() == 1:
+                    d.on()
+                    print("Landing...")
+                    sleep(0.2)
+                else:
+                    d.off()
+                    msg = input("")
 
             if not msg:
                 break
