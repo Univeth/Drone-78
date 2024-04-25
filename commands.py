@@ -1,53 +1,34 @@
+import time
 import socket
-import sys
 from machine import Pin
-from time import sleep
-
-# UDEN THREADING
-# UDEN THREADING
-# UDEN THREADING
 
 
-def command2():
-    host = ""
-    port = 9000
-    locaddr = (host, port)
-
+def udp_send(message):
     # Create a UDP socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    tello_address = ("192.168.10.1", 8889)  # Tello drone address
+    sock.sendto(message.encode(), tello_address)
+    sock.close()
 
-    tello_address = ("192.168.10.1", 8889)
 
-    sock.bind(locaddr)
-
-    print("\r\n\r\nTello\r\n")
-    print("end -- quit demo.\r\n")
-
-    n = Pin(16, mode=Pin.IN, pull=Pin.PULL_DOWN)
-    d = Pin(17, mode=Pin.IN, pull=Pin.PULL_DOWN)
+def remote_control():
+    # Setup buttons
+    n = Pin(16, Pin.IN, Pin.PULL_DOWN)  # Assuming pin 16 is connected to 'n' button
+    d = Pin(17, Pin.IN, Pin.PULL_DOWN)  # Assuming pin 17 is connected to 'd' button
 
     while True:
-        try:
-            msg = "command"
+        if n.value() == 1:
+            print("Takeoff button pressed")
+            udp_send("takeoff")
+            time.sleep(
+                0.5
+            )  # Delay to avoid sending multiple commands in quick succession
 
-            msg = msg.encode(encoding="utf-8")
-            sent = sock.sendto(msg, tello_address)
+        if d.value() == 1:
+            print("Land button pressed")
+            udp_send("land")
+            time.sleep(
+                0.5
+            )  # Delay to avoid sending multiple commands in quick succession
 
-            if n.value() == 1:
-                print("Takeoff...")
-                msg = "takeoff".encode(encoding="utf-8")
-                sent = sock.sendto(msg, tello_address)
-                sleep(0.5)
-
-            if d.value() == 1:
-                print("Landing...")
-                msg = "land".encode(encoding="utf-8")
-                sent = sock.sendto(msg, tello_address)
-                sleep(0.5)
-
-            sleep(0.1)
-
-        except KeyboardInterrupt:
-            print("\n . . .\n")
-            sock.close()
-            break
+        time.sleep(0.1)  # Adjust as needed to control the button polling rate
