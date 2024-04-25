@@ -1,15 +1,14 @@
-import _thread
 import socket
 import sys
-import time
 from machine import Pin
 from time import sleep
 
+# UDEN THREADING
+# UDEN THREADING
+# UDEN THREADING
 
-def command():
-    n = Pin(16, mode=Pin.IN, pull=Pin.PULL_DOWN)
-    d = Pin(17, mode=Pin.IN, pull=Pin.PULL_DOWN)
 
+def command2():
     host = ""
     port = 9000
     locaddr = (host, port)
@@ -21,58 +20,33 @@ def command():
 
     sock.bind(locaddr)
 
-    def recv():
-        count = 0
-        while True:
-            try:
-                data, server = sock.recvfrom(1518)
-                print(data.decode(encoding="utf-8"))
-            except Exception:
-                print("\nExit . . .\n")
-                break
-
-    print("\r\n\r\nTello Python3 Demo.\r\n")
-
-    print(
-        "Tello: command takeoff land flip forward back left right \r\n       up down cw ccw speed speed?\r\n"
-    )
-
+    print("\r\n\r\nTello\r\n")
     print("end -- quit demo.\r\n")
 
-    # recvThread create
-    recvThread = _thread.start_new_thread(recv, ())  # Create the thread object
-    recvThread.start()  # Start the thread
+    n = Pin(16, mode=Pin.IN, pull=Pin.PULL_DOWN)
+    d = Pin(17, mode=Pin.IN, pull=Pin.PULL_DOWN)
 
     while True:
-
         try:
-            while True:
-                if n.value() == 1:
-                    n.on()
-                    print("Takeoff...")
-                    sleep(0.2)
-                else:
-                    n.off()
+            msg = "command"
 
-                if d.value() == 1:
-                    d.on()
-                    print("Landing...")
-                    sleep(0.2)
-                else:
-                    d.off()
-                    msg = input("")
-
-            if not msg:
-                break
-
-            if "end" in msg:
-                print("...")
-                sock.close()
-                break
-
-            # Send data
             msg = msg.encode(encoding="utf-8")
             sent = sock.sendto(msg, tello_address)
+
+            if n.value() == 1:
+                print("Takeoff...")
+                msg = "takeoff".encode(encoding="utf-8")
+                sent = sock.sendto(msg, tello_address)
+                sleep(0.5)
+
+            if d.value() == 1:
+                print("Landing...")
+                msg = "land".encode(encoding="utf-8")
+                sent = sock.sendto(msg, tello_address)
+                sleep(0.5)
+
+            sleep(0.1)
+
         except KeyboardInterrupt:
             print("\n . . .\n")
             sock.close()

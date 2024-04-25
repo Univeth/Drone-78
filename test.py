@@ -1,6 +1,5 @@
 from machine import Pin
 from time import sleep
-import commands
 
 
 def test():
@@ -12,7 +11,7 @@ def test():
         if n.value() == 1:
             n.on()
             print("Takeoff...")
-            commands.command("takeoff")
+
             sleep(0.2)
         else:
             n.off()
@@ -20,7 +19,7 @@ def test():
         if d.value() == 1:
             d.on()
             print("Landing...")
-            commands.command("land")
+
             sleep(0.2)
         else:
             d.off()
