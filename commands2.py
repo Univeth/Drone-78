@@ -39,6 +39,8 @@ def commands2():
 
     takeoff_pin = Pin(16, mode=Pin.IN, pull=Pin.PULL_DOWN)
     land_pin = Pin(17, mode=Pin.IN, pull=Pin.PULL_DOWN)
+    flip_forward = Pin(18, mode=Pin.IN, pull=Pin.PULL_DOWN)
+    flip_backward = Pin(19, mode=Pin.IN, pull=Pin.PULL_DOWN)
 
     # Funktion for at sende kommandoer til Tello drone
     def send_command(command):
@@ -50,7 +52,7 @@ def commands2():
 
     while True:
         try:
-            
+
             if takeoff_pin.value() == 1:
                 send_command("takeoff")
                 print("takeoff")
@@ -61,9 +63,20 @@ def commands2():
                 print("land")
                 time.sleep(2)
 
+            if flip_forward.value() == 1:
+                send_command("flip f")
+                print("flipping forwards")
+                time.sleep(2)
+
+            if flip_backward.value() == 1:
+                send_command("flip b")
+                print("flipping backwards")
+                time.sleep(2)
+
         except KeyboardInterrupt:
             print("\n . . .\n")
             sock.close()
             break
+
 
 commands2()
