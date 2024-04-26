@@ -1,9 +1,9 @@
-import test
-import commands
+import commands2
 
 
 def main():
-    test.test()
+
+    commands2.commands2()
 
 
 if __name__ == "__main__":
