@@ -1,9 +1,8 @@
-import commands2
+import commands
 
 
 def main():
-
-    commands2.commands2()
+    commands.send_command()
 
 
 if __name__ == "__main__":

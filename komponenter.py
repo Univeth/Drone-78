@@ -1,14 +1,23 @@
 import machine
+from machine import Pin
 import utime
 
+
+# KNAPPER
+
+takeoff_land = Pin(1, mode=Pin.IN, pull=Pin.PULL_DOWN)
+# land_pin = Pin(17, mode=Pin.IN, pull=Pin.PULL_DOWN)
+# flip_forward = Pin(18, mode=Pin.IN, pull=Pin.PULL_DOWN)
+# flip_backward = Pin(19, mode=Pin.IN, pull=Pin.PULL_DOWN)
+
+
+# JOYSTICKS
 
 A = machine.Pin(18, machine.Pin.OUT)
 B = machine.Pin(17, machine.Pin.OUT)
 C = machine.Pin(16, machine.Pin.OUT)
 
-
 adc = machine.ADC(machine.Pin(27))
-
 
 def joystick1_x():
     A.value(1)
@@ -48,14 +57,3 @@ def joystick2_y():
     utime.sleep_ms(10)
 
     return adc.read_u16()
-
-
-while True:
-    print("\n")
-    print("JS1 <X>: > ", joystick1_x())
-    print("JS1 <Y>: ", joystick1_y())
-    print("\n")
-    print("JS2 <Y>: > ", joystick2_x())
-    print("JS2 <X>: > ", joystick2_y())
-
-    utime.sleep(0.8)
