@@ -2,7 +2,8 @@ import socket
 import network
 import time
 import _thread
-from machine import Pin
+from machine import Pin, ADC
+import utime
 
 
 def commands2():
@@ -42,6 +43,9 @@ def commands2():
     flip_forward = Pin(18, mode=Pin.IN, pull=Pin.PULL_DOWN)
     flip_backward = Pin(19, mode=Pin.IN, pull=Pin.PULL_DOWN)
 
+    xAxis = ADC(Pin(27))
+    yAxis = ADC(Pin(26))
+
     # Funktion for at sende kommandoer til Tello drone
     def send_command(command):
         command = command.encode("utf-8")
@@ -49,29 +53,35 @@ def commands2():
 
     send_command("command")
     time.sleep(1)
+    send_command("takeoff")
+    time.sleep(1)
 
     while True:
+        xValue = xAxis.read_u16()
+        yValue = yAxis.read_u16()
         try:
 
-            if takeoff_pin.value() == 1:
-                send_command("takeoff")
-                print("takeoff")
-                time.sleep(2)
+            if yValue >= 40000:
+                send_command("forward 35")
+                print("up")
+                time.sleep(1.5)
+            elif yValue <= 25000:
+                send_command("back 35")
+                print("down")
+                time.sleep(1.5)
 
-            if land_pin.value() == 1:
+            if xValue >= 40000:
+                send_command("left 35")
+                print("forward 50")
+                time.sleep(1.5)
+            elif xValue <= 25000:
+                send_command("right 35")
+                print("back 50")
+                time.sleep(1.5)
+            elif xValue >= 65000:
                 send_command("land")
-                print("land")
-                time.sleep(2)
-
-            if flip_forward.value() == 1:
-                send_command("flip f")
-                print("flipping forwards")
-                time.sleep(2)
-
-            if flip_backward.value() == 1:
-                send_command("flip b")
-                print("flipping backwards")
-                time.sleep(2)
+                print("flip foward")
+                time.sleep(1.5)
 
         except KeyboardInterrupt:
             print("\n . . .\n")
