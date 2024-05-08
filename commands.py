@@ -95,6 +95,11 @@ def send_command():
                 print("Op")
                 utime.sleep(1)
 
+            elif 18000 <= komponenter.joystick1_y() < 40000:
+                print("Deadzone")
+                utime.sleep(1)
+                pass
+
             elif komponenter.joystick1_y() <= 18000:
                 print("Ned")
                 utime.sleep(1)
