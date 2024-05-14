@@ -1,8 +1,8 @@
-import commands
+import controller
 
 
 def main():
-    commands.send_command()
+    controller.execute_commands()
 
 
 if __name__ == "__main__":
