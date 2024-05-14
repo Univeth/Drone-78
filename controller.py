@@ -55,6 +55,10 @@ def execute_commands():
 
     print("\nREADY ->")
 
+    flip_directions = ["l", "r", "f", "b"]
+    current_flip_index = 0
+    flying = False
+
     while True:
         try:
 
@@ -65,9 +69,14 @@ def execute_commands():
 
             print("JS1 <X>: > ", reader.joystick1_x())
             print("JS1 <Y>: ", reader.joystick1_y())
-            if js1_x >= 63000:
+            if js1_y >= 63000:
                 print("Joy1 Button Pressed")
-                send_tello_command(sock, tello_address, commands.takeoff())
+                if not flying:
+                    send_tello_command(sock, tello_address, commands.takeoff())
+                    flying = True
+                else:
+                    send_tello_command(sock, tello_address, commands.land())
+                    flying = False
 
             elif 40000 <= js1_x < 63000:
                 print("Right")
@@ -101,9 +110,11 @@ def execute_commands():
             #
 
             # X AKSE - JOY2
-            if js2_x >= 63000:
+            if js2_y >= 63000:
                 print("Joy2 Button Pressed")
-                send_tello_command(sock, tello_address, commands.land())
+                flip_command = commands.flip(flip_directions[current_flip_index])
+                send_tello_command(sock, tello_address, flip_command)
+                current_flip_index = (current_flip_index + 1) % len(flip_directions)
 
             elif 40000 <= js2_x < 63000:
                 print("Right")
@@ -116,11 +127,11 @@ def execute_commands():
             # Y AKSE - JOY2
             if js2_y <= 18000:
                 print("Op")
-                send_tello_command(sock, tello_address, commands.takeoff())
+                send_tello_command(sock, tello_address, commands.move_up(30))
 
             elif js2_y >= 40000:
                 print("Ned")
-                send_tello_command(sock, tello_address, commands.land())
+                send_tello_command(sock, tello_address, commands.move_down(30))
 
             utime.sleep(0.3)
 

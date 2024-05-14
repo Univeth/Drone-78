@@ -10,6 +10,18 @@ def land():
     return "land"
 
 
+def streamon():
+    return "streamon"
+
+
+def streamoff():
+    return "streamoff"
+
+
+def emergency():
+    return "emergency"
+
+
 def move_up(distance: int):
     return f"up {distance}"
 
@@ -44,3 +56,11 @@ def counterclockwise(degrees: int):
 
 def flip(direction: str):
     return f"flip {direction}"
+
+
+def go(x: int, y: int, z: int, speed: int):
+    return f"go {x} {y} {z} {speed}"
+
+
+def curve(x1: int, y1: int, z1: int, x2: int, y2: int, z2: int, speed: int):
+    return f"curve {x1} {y1} {z1} {x2} {y2} {z2} {speed}"
