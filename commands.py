@@ -2,6 +2,10 @@ def command():
     return "command"
 
 
+def battery():
+    return "battery?"
+
+
 def takeoff():
     return "takeoff"
 

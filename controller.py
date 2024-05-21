@@ -1,3 +1,4 @@
+import screen.screen as screen
 import socket
 import network
 from time import sleep
@@ -5,6 +6,8 @@ import utime
 import _thread
 import reader
 import commands
+import screen.screen as screen
+import globals
 
 
 # Laver network connection til dronens netværk.
@@ -53,6 +56,14 @@ def execute_commands():
     send_tello_command(sock, tello_address, commands.command())
     utime.sleep(1)
 
+    def get_battery_status(sock, tello_address):
+        send_tello_command(sock, tello_address, "battery?")
+        data, addr = sock.recvfrom(1518)
+        globals.battery_status = data.decode("utf-8")
+        return globals.battery_status
+
+    get_battery_status(sock, tello_address)
+
     print("\nREADY ->")
 
     flip_directions = ["l", "r", "f", "b"]
@@ -61,14 +72,16 @@ def execute_commands():
 
     while True:
         try:
-
             js1_x = reader.joystick1_x()
             js1_y = reader.joystick1_y()
             js2_x = reader.joystick2_x()
             js2_y = reader.joystick2_y()
 
-            print("JS1 <X>: > ", reader.joystick1_x())
-            print("JS1 <Y>: ", reader.joystick1_y())
+            print("JS1 <X>: > ", js1_x)
+            print("JS1 <Y>: ", js1_y)
+            print("JS2 <X>: > ", js2_x)
+            print("JS2 <Y>: ", js2_y)
+
             if js1_y >= 63000:
                 print("Joy1 Button Pressed")
                 if not flying:
@@ -93,7 +106,7 @@ def execute_commands():
 
             # Y AKSE - JOY1
             if js1_y <= 18000:
-                print("Op")
+                print("Up")
                 send_tello_command(sock, tello_address, commands.move_forward(30))
 
             elif 18000 <= js1_y < 40000:
@@ -101,13 +114,8 @@ def execute_commands():
                 pass
 
             elif js1_y >= 40000:
-                print("Ned")
+                print("Down")
                 send_tello_command(sock, tello_address, commands.move_back(30))
-
-            #
-            #
-            #
-            #
 
             # X AKSE - JOY2
             if js2_y >= 63000:
@@ -126,11 +134,11 @@ def execute_commands():
 
             # Y AKSE - JOY2
             if js2_y <= 18000:
-                print("Op")
+                print("Up")
                 send_tello_command(sock, tello_address, commands.move_up(30))
 
             elif js2_y >= 40000:
-                print("Ned")
+                print("Down")
                 send_tello_command(sock, tello_address, commands.move_down(30))
 
             utime.sleep(0.3)
