@@ -1,6 +1,5 @@
-from screen.pico_parallel_lcd import GpioLcd
+from pico_parallel_lcd import GpioLcd
 import utime
-from .. import globals
 
 # Define GPIO pins for LCD
 RS = 0
@@ -22,10 +21,17 @@ lcd = GpioLcd(
     num_columns=8,
 )
 
+# Clear the LCD
+lcd.clear()
 
-def lcd_screen():
+
+def message(battery, speed):
+    # Clear Screen
     lcd.clear()
+
     # Display a message
-    lcd.write(globals.battery_status)
+    lcd.write(battery)
+    utime.sleep(0.1)
     lcd.set_cursor_to_second_line()
-    lcd.write("(●'◡'●)")
+    utime.sleep(0.1)
+    lcd.write(speed)

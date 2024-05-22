@@ -1,5 +1,5 @@
 from machine import Pin
-from screen.lcd_api import LcdApi
+from lcd_api import LcdApi
 import utime
 
 

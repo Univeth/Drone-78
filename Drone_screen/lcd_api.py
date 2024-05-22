@@ -1,5 +1,6 @@
 import utime
 
+
 class LcdApi:
     # LCD commands
     LCD_CLR = 0x01  # DB0: clear display
@@ -37,13 +38,15 @@ class LcdApi:
             for start_address in [0x08, 0x10, 0x20, 0x40, 0x60, 0x80, 0xA0, 0xC0, 0xE0]:
                 address = start_address + pos
                 self.hal_write_command(self.LCD_DDRAM | address)
-                self.write(' ')
+                self.write(" ")
                 self.hal_write_command(self.LCD_DDRAM | address)
         else:
             raise ValueError("Line number must be 0 or 1")
-    
+
     def set_cursor_to_second_line(self):
-        self.hal_write_command(0xC0)  # Change this to 0x40 if your display starts the second line at 0x40
+        self.hal_write_command(
+            0xC0
+        )  # Change this to 0x40 if your display starts the second line at 0x40
 
     def __init__(self, num_lines, num_columns):
         self.num_lines = num_lines

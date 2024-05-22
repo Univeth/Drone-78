@@ -1,4 +1,3 @@
-import screen.screen as screen
 import socket
 import network
 from time import sleep
@@ -6,8 +5,7 @@ import utime
 import _thread
 import reader
 import commands
-import screen.screen as screen
-import globals
+from Drone_screen import screen
 
 
 # Laver network connection til dronens netværk.
@@ -56,13 +54,24 @@ def execute_commands():
     send_tello_command(sock, tello_address, commands.command())
     utime.sleep(1)
 
+    def get_speed(sock, tello_address):
+        send_tello_command(sock, tello_address, "speed?")
+        data, addr = sock.recvfrom(1518)
+        get_speed = data.decode("utf-8")
+        return get_speed
+
     def get_battery_status(sock, tello_address):
         send_tello_command(sock, tello_address, "battery?")
         data, addr = sock.recvfrom(1518)
-        globals.battery_status = data.decode("utf-8")
-        return globals.battery_status
+        battery_status = data.decode("utf-8")
+        return battery_status
 
-    get_battery_status(sock, tello_address)
+    utime.sleep(0.5)
+    screen.message(
+        "Batt: " + get_battery_status(sock, tello_address),
+        "Cm/s: " + get_battery_status(sock, tello_address),
+    )
+    utime.sleep(0.5)
 
     print("\nREADY ->")
 
@@ -120,9 +129,15 @@ def execute_commands():
             # X AKSE - JOY2
             if js2_y >= 63000:
                 print("Joy2 Button Pressed")
-                flip_command = commands.flip(flip_directions[current_flip_index])
-                send_tello_command(sock, tello_address, flip_command)
-                current_flip_index = (current_flip_index + 1) % len(flip_directions)
+                # flip_command = commands.flip(flip_directions[current_flip_index])
+                # send_tello_command(sock, tello_address, flip_command)
+                # current_flip_index = (current_flip_index + 1) % len(flip_directions)
+                utime.sleep(0.5)
+                screen.message(
+                    "Batt: " + get_battery_status(sock, tello_address),
+                    "Cm/s: " + get_speed(sock, tello_address),
+                )
+                utime.sleep(0.5)
 
             elif 40000 <= js2_x < 63000:
                 print("Right")
