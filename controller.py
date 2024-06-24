@@ -10,20 +10,21 @@ from Drone_screen import screen
 
 # Laver network connection til dronens netværk.
 def setup_network():
-    host = ""
-    port = 9000
+    host = ""  
+    port = 9000 
     locaddr = (host, port)
 
-    wlan = network.WLAN(network.STA_IF)
-    wlan.active(True)
-    wlan.connect("TELLO-E9C6E8", "")
-    while not wlan.isconnected():
+    wlan = network.WLAN(network.STA_IF) 
+    wlan.active(True) 
+    wlan.connect("TELLO-E9C6E8", "") 
+    while not wlan.isconnected():  
         sleep(1)
 
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    tello_address = ("192.168.10.1", 8889)
-    sock.bind(locaddr)
-    return sock, tello_address
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  
+    tello_address = ("192.168.10.1", 8889) 
+    sock.bind(locaddr)  
+    return sock, tello_address 
+
 
 
 # Laver "threading" som gøre man kan modtage og sende UDP packets samtidigt.
@@ -37,6 +38,7 @@ def receive_thread(sock):
                 print("\nExit . . .\n")
                 break
 
+    # Starter en ny tråd, som kører funktionen "recv"
     _thread.start_new_thread(recv, ())
 
 
@@ -54,29 +56,19 @@ def execute_commands():
     send_tello_command(sock, tello_address, commands.command())
     utime.sleep(1)
 
-    def get_speed(sock, tello_address):
-        send_tello_command(sock, tello_address, "speed?")
-        data, addr = sock.recvfrom(1518)
-        get_speed = data.decode("utf-8")
-        return get_speed
-
     def get_battery_status(sock, tello_address):
-        send_tello_command(sock, tello_address, "battery?")
+        send_tello_command(sock, tello_address, commands.battery())
         data, addr = sock.recvfrom(1518)
         battery_status = data.decode("utf-8")
         return battery_status
 
+
     utime.sleep(0.5)
-    screen.message(
-        "Batt: " + get_battery_status(sock, tello_address),
-        "Cm/s: " + get_battery_status(sock, tello_address),
-    )
+    screen.message("Batt: " + get_battery_status(sock, tello_address), "Mode:  1")
     utime.sleep(0.5)
 
     print("\nREADY ->")
 
-    flip_directions = ["l", "r", "f", "b"]
-    current_flip_index = 0
     flying = False
 
     while True:
@@ -85,13 +77,9 @@ def execute_commands():
             js1_y = reader.joystick1_y()
             js2_x = reader.joystick2_x()
             js2_y = reader.joystick2_y()
-
-            print("JS1 <X>: > ", js1_x)
-            print("JS1 <Y>: ", js1_y)
-            print("JS2 <X>: > ", js2_x)
-            print("JS2 <Y>: ", js2_y)
-
-            if js1_y >= 63000:
+            
+            # JS1 trykkes ned –
+            if js1_x >= 63000:
                 print("Joy1 Button Pressed")
                 if not flying:
                     send_tello_command(sock, tello_address, commands.takeoff())
@@ -99,19 +87,20 @@ def execute_commands():
                 else:
                     send_tello_command(sock, tello_address, commands.land())
                     flying = False
-
+            #JS1 deadzone –
+            elif 18000 <= js1_x < 40000:
+                print("Deadzone")
+                pass
+            #JS1 mod højre –
             elif 40000 <= js1_x < 63000:
                 print("Right")
                 send_tello_command(sock, tello_address, commands.move_right(30))
-
-            elif 18000 <= js1_x < 40000:
-                print("Deadzone")
-                # utime.sleep(0.5)
-                pass
-
+            #JS1 mod venstre –
             elif js1_x <= 18000:
                 print("Left")
                 send_tello_command(sock, tello_address, commands.move_left(30))
+
+
 
             # Y AKSE - JOY1
             if js1_y <= 18000:
@@ -126,18 +115,55 @@ def execute_commands():
                 print("Down")
                 send_tello_command(sock, tello_address, commands.move_back(30))
 
-            # X AKSE - JOY2
             if js2_y >= 63000:
                 print("Joy2 Button Pressed")
-                # flip_command = commands.flip(flip_directions[current_flip_index])
-                # send_tello_command(sock, tello_address, flip_command)
-                # current_flip_index = (current_flip_index + 1) % len(flip_directions)
-                utime.sleep(0.5)
+                print("Entering new mode")
+                second_mode = True
+                utime.sleep(0.3)
                 screen.message(
-                    "Batt: " + get_battery_status(sock, tello_address),
-                    "Cm/s: " + get_speed(sock, tello_address),
+                    "Batt: " + get_battery_status(sock, tello_address), "Mode:  2"
                 )
-                utime.sleep(0.5)
+                utime.sleep(1)
+                while second_mode:
+                    try:
+                        print("Second Mode Activated")
+                        js2_x = reader.joystick2_x()
+                        js2_y = reader.joystick2_y()
+
+                        if js2_y >= 63000:
+                            print("Joy2 Button Pressed")
+                            second_mode = False
+                            utime.sleep(0.3)
+                            screen.message(
+                                "Batt: " + get_battery_status(sock, tello_address),
+                                "Mode:  1",
+                            )
+                            utime.sleep(1)
+
+                        # Y AKSE - JOY2
+                        elif js2_y <= 18000:
+                            print("Up")
+                            send_tello_command(sock, tello_address, commands.flip("f"))
+
+                        elif js2_y >= 40000 and js2_y < 63000:
+                            print("Down")
+                            send_tello_command(sock, tello_address, commands.flip("b"))
+
+                        if 40000 <= js2_x < 63000:
+                            print("Right")
+                            send_tello_command(sock, tello_address, commands.flip("r"))
+
+                        elif js2_x <= 18000:
+                            print("Left")
+                            send_tello_command(sock, tello_address, commands.flip("l"))
+
+                        utime.sleep(0.3)
+
+                    except KeyboardInterrupt:
+                        print("\n . . .\n")
+                        sock.close()
+                        break
+                print("EXITING SECOND MODE")
 
             elif 40000 <= js2_x < 63000:
                 print("Right")

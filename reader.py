@@ -5,8 +5,8 @@ import utime
 
 # KNAPPER
 
-takeoff_land = Pin(1, mode=Pin.IN, pull=Pin.PULL_DOWN)
-
+led = Pin("LED", Pin.OUT)
+led.toggle()
 
 # JOYSTICKS
 

@@ -25,13 +25,12 @@ lcd = GpioLcd(
 lcd.clear()
 
 
-def message(battery, speed):
+def message(battery, mode):
     # Clear Screen
     lcd.clear()
-
     # Display a message
     lcd.write(battery)
     utime.sleep(0.1)
     lcd.set_cursor_to_second_line()
     utime.sleep(0.1)
-    lcd.write(speed)
+    lcd.write(mode)
